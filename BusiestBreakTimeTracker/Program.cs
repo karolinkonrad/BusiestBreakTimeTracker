@@ -1,29 +1,38 @@
-﻿using System;
+﻿using CustomExceptions;
+using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.IO;
+using System.Linq;
+
 
 namespace BusiestBreakTimeTracker
 {
     internal class Program
     {
-        static List<(DateTime time, int type)> timePoints = new List<(DateTime time, int type)>();
+        private static BreakTimeTracker breakTimeTracker = new BreakTimeTracker();
 
+        // Command line application for finding the busiest time interval for breaks. 
         static void Main(string[] args)
         {
-
+            // Read entries from file.
             if (args.Length == 2 && args[0] == "filename")
-            {
-                if (ReadFromFile(args[1]))
+            {    
+                try
                 {
-                    DisplayBusiestPeriod();
+                    ReadFromFile(args[1]);
+                    DisplayBusiestInterval(breakTimeTracker.FindBusiestIntervals());
+                }
+                catch (TimeEntryExeption ex)
+                {
+                    Console.WriteLine(ex.ToString());
                 }
             }
 
+            // Add entries one-by-one.
             while (true)
             {
-
                 Console.WriteLine("<start time><end time> - add entry\nq - quit");
+
                 string input = Console.ReadLine();
                 if (input != null)
                 {
@@ -32,81 +41,67 @@ namespace BusiestBreakTimeTracker
                         break;
                     }
 
-                    if (ParseEntry(input))
+                    try
                     {
-                        DisplayBusiestPeriod();
+                        breakTimeTracker.AddTimeInterval(ParseEntry(input));
+                        DisplayBusiestInterval(breakTimeTracker.FindBusiestIntervals());
                     }
-
+                    catch (TimeEntryExeption ex)
+                    {
+                        Console.WriteLine(ex.ToString());
+                    }
                 }
             }
         }
+        
+        // Print the busiest start and end time and the number of drivers taking a break.
+        private static void DisplayBusiestInterval(List<TimeInterval> busiestTimeIntervals)
+        {
+            Console.WriteLine($"Busiest times:");
+            foreach (var interval in busiestTimeIntervals)
+            {
+                Console.WriteLine($"{interval.start:HH:mm} - {interval.end:HH:mm}" +
+                $" with {interval.drivers} drivers taking a break.");
+                
+            }
+            Console.WriteLine($"----------------------------------");
+        }
 
-
-        static bool ReadFromFile(string filePath)
+        // Read entries from file.
+        static void ReadFromFile(string filePath)
         {
             if (!File.Exists(filePath))
             {
-                Console.WriteLine("File not found.");
-                return false;
+                throw new TimeEntryExeption("File not found.");
+            }
+            var lines = File.ReadLines(filePath);
+
+            if (!lines.Any())
+            {
+                throw new TimeEntryExeption("File is empty.");
             }
 
-            foreach (var line in File.ReadLines(filePath))
+            foreach (var line in lines)
             {
-                ParseEntry(line);
-            }
-            return timePoints.Any();
+                breakTimeTracker.AddTimeInterval(ParseEntry(line));
+            }            
         }
 
-        static bool ParseEntry(string timeEntry)
+        // Parse entry into DateTimies.
+        static (DateTime, DateTime) ParseEntry(string timeEntry)
         {
             try
             {
                 DateTime start = DateTime.ParseExact(timeEntry.Substring(0, 5), "HH:mm", null);
                 DateTime end = DateTime.ParseExact(timeEntry.Substring(5), "HH:mm", null);
-                timePoints.Add((start, 1));  // Start of break
-                timePoints.Add((end, -1));   // End of break
-                return true;
+                return (start, end);
+
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                Console.WriteLine($"Error parsing time entry: {timeEntry}\n" +
+                throw new TimeEntryExeption($"Error parsing time entry: {timeEntry}\n" +
                     $"Time entry format is <start time><end time> (example 13:1514:00)");
             }
-            return false;
-        }
-
-
-
-        static void DisplayBusiestPeriod()
-        {
-            timePoints = timePoints.OrderBy(x => x.time).ThenBy(x => x.type).ToList();
-
-            int maxDrivers = 0;
-            int currentDrivers = 0;
-            DateTime? busiestStart = null;
-            DateTime? busiestEnd = null;
-
-            DateTime lastTime = timePoints[0].time;
-
-            foreach (var (time, type) in timePoints)
-            {
-
-                if (currentDrivers > maxDrivers)
-                {
-                    maxDrivers = currentDrivers;
-                    busiestStart = lastTime;
-                    busiestEnd = lastTime;
-                }
-                if (currentDrivers == maxDrivers && busiestEnd == lastTime)
-                {
-                    busiestEnd = time;
-                }
-                currentDrivers += type;
-                lastTime = time;
-            }
-
-            Console.WriteLine($"Busiest time is {busiestStart:HH:mm} - {busiestEnd:HH:mm} with {maxDrivers} drivers taking a break.\n" +
-                            $"----------------------------------");
         }
     }
 }

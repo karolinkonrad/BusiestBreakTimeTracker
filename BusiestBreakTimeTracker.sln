@@ -5,6 +5,11 @@ VisualStudioVersion = 17.10.35013.160
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BusiestBreakTimeTracker", "BusiestBreakTimeTracker\BusiestBreakTimeTracker.csproj", "{4304772F-D770-4FE1-A9D3-484674679597}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BusiestBreakTimeTrackerTests", "BusiestBreakTimeTrackerTests\BusiestBreakTimeTrackerTests.csproj", "{6FF54091-EC03-4B1B-A5D9-67F0962F4AB9}"
+	ProjectSection(ProjectDependencies) = postProject
+		{4304772F-D770-4FE1-A9D3-484674679597} = {4304772F-D770-4FE1-A9D3-484674679597}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +20,10 @@ Global
 		{4304772F-D770-4FE1-A9D3-484674679597}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4304772F-D770-4FE1-A9D3-484674679597}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4304772F-D770-4FE1-A9D3-484674679597}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6FF54091-EC03-4B1B-A5D9-67F0962F4AB9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6FF54091-EC03-4B1B-A5D9-67F0962F4AB9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6FF54091-EC03-4B1B-A5D9-67F0962F4AB9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6FF54091-EC03-4B1B-A5D9-67F0962F4AB9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
